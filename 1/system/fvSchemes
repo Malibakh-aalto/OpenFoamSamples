@@ -1,0 +1,58 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  11
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default         Euler;				// could be "backward"
+}
+
+gradSchemes			// keep it here because TVD schemes use this 
+{
+    default         Gauss linear;
+	grad(p)			Gause linear;		// Added this; 
+}
+
+divSchemes								// we can change this 
+{
+    default         none;
+    div(phi,T)      Gauss blended 0.1;	// We should add the convection term discretization schemes here 
+	// div(phi,U)      Gauss limitedLinearV 1;
+    // div(phi,k)      Gauss limitedLinear 1;
+    // div(phi,epsilon) Gauss limitedLinear 1;
+    // div(phi,omega)  Gauss limitedLinear 1;
+    // div(phi,R)      Gauss limitedLinear 1;
+    // div(R)          Gauss linear;
+    // div(phi,nuTilda) Gauss limitedLinear 1;
+    // div((nuEff*dev2(T(grad(U))))) Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         none;				// previously: Gauss linear corrected
+}
+
+interpolationSchemes
+{
+    default         none; 				// previously: linear
+}
+
+snGradSchemes
+{
+    default         none;				// previously: corrected
+}
+
+
+// ************************************************************************* //

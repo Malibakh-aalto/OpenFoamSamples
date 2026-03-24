@@ -1,0 +1,72 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  11
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      T;
+    version     2;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField nonuniform #codeStream // A C++ block to set up a Gaussian profile
+{
+
+        codeInclude
+        #{
+            #include "volFields.H"
+        #};
+        codeOptions
+        #{
+            -I$(LIB_SRC)/finiteVolume/lnInclude \
+            -I$(LIB_SRC)/meshTools/lnInclude
+        #};
+        codeLibs
+        #{
+            -lmeshTools \
+            -lfiniteVolume
+        #};
+        code
+        #{
+            const IOdictionary& d = static_cast<const IOdictionary&>(dict);
+            const fvMesh& mesh = refCast<const fvMesh>(d.db());
+            scalarField T(mesh.nCells(), 0.);       // create a field of zeros for the current mesh
+
+            scalar L = 6.28;
+            scalar sigma = L/15;                    // the standard deviation of the Gaussian
+            scalar x0 = 3.14;                       // center of the Gaussian
+            forAll(T, i)                            // iterate over all cells in the mesh
+            {
+                const scalar x = mesh.C()[i][0];    // get the "x" coordinate of a cell i
+                T[i] = exp(-((x-x0)*(x-x0))/(2*sigma*sigma));
+            }
+            os << T;
+        #};
+
+};
+
+boundaryField
+{
+    left
+    {
+        type            cyclic;
+    }
+    right
+    {
+        type            cyclic;
+    }
+    empty
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //
